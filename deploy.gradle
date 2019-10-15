@@ -1,0 +1,75 @@
+// deploy:
+// ./gradlew clean
+// ./gradlew assemble
+// ./gradlew artifactoryPublish
+// ./gradlew bintrayUpload
+
+apply plugin: "maven-publish"
+apply plugin: 'com.jfrog.artifactory'
+apply plugin: "com.jfrog.bintray"
+
+ext.pluginGroupdId = "com.halcyonmobile.publish.artifactory-bintray"
+ext.pluginArtifactId = "java-and-aar"
+ext.pluginVersion = "0.1.0.1"
+
+
+def pomConfig = {
+    licenses {
+        license {
+            name "The Apache Software License, Version 2.0"
+            url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+            distribution "repo"
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+
+            groupId "$pluginGroupdId"
+            version "$pluginVersion"
+            artifactId "$pluginArtifactId"
+        }
+    }
+}
+
+ext.artifactoryUrl = 'https://artifactory.build.halcyonmobile.com/artifactory'
+
+artifactory {
+    contextUrl = "$artifactoryUrl"
+    publish {
+        contextUrl = "$artifactoryUrl"
+        repository {
+            repoKey = 'plugins-release-local'
+            username = artifactory_username
+            password = artifactory_password
+            maven = true
+        }
+
+        defaults {
+            publications('mavenJava')
+            publishArtifacts = true
+
+            properties = ['qa.level': 'basic', 'q.os': 'android', 'dev.team': 'core']
+        }
+    }
+}
+
+bintray {
+    user = bintray_username
+    key = bintray_password
+    publications = ['mavenJava']
+    publish = true
+    override = true
+    pkg {
+        repo = 'maven'
+        name = "$pluginGroupdId:$pluginArtifactId"
+        vcsUrl = 'https://github.com/halcyonmobile/halcyon-custom-gradle-publish-plugin'
+        licenses = ['Apache-2.0']
+        version {
+            name = pluginVersion
+        }
+    }
+}
