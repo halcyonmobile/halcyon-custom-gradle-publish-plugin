@@ -1,16 +1,14 @@
 // deploy:
 // ./gradlew clean
 // ./gradlew assemble
-// ./gradlew artifactoryPublish
 // ./gradlew bintrayUpload
 
 apply plugin: "maven-publish"
-apply plugin: 'com.jfrog.artifactory'
 apply plugin: "com.jfrog.bintray"
 
 ext.pluginGroupdId = "com.halcyonmobile.publish.artifactory-bintray"
 ext.pluginArtifactId = "java-and-aar"
-ext.pluginVersion = "0.1.0.1"
+ext.pluginVersion = "0.1.0.2"
 
 
 def pomConfig = {
@@ -37,28 +35,6 @@ publishing {
             version "$pluginVersion"
             artifactId "$pluginArtifactId"
             artifact sourcesJar
-        }
-    }
-}
-
-ext.artifactoryUrl = 'https://artifactory.build.halcyonmobile.com/artifactory'
-
-artifactory {
-    contextUrl = "$artifactoryUrl"
-    publish {
-        contextUrl = "$artifactoryUrl"
-        repository {
-            repoKey = 'plugins-release-local'
-            username = artifactory_username
-            password = artifactory_password
-            maven = true
-        }
-
-        defaults {
-            publications('mavenJava')
-            publishArtifacts = true
-
-            properties = ['qa.level': 'basic', 'q.os': 'android', 'dev.team': 'core']
         }
     }
 }

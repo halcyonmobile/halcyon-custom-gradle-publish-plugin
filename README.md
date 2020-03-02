@@ -9,10 +9,9 @@ and instead have one plugin which can be updated and fixes can be in place more 
 
 latest version is 0.1.0.1
 
-### Add artifactory and plugin to your dependencies
-- add your bintray and artifactory access to your gradle.properties:
-artifactory_username, artifactory_password, bintray_username, bintray_password
-- If you don't want to publish to bintray feel free to left those out
+### Add plugin to your dependencies
+- add your bintray access to your global gradle.properties:
+bintray_username, bintray_password
 - in your top-level build.gradle add the following setup to access halcyon gradle plugins and add the publish plugin:
 ```groovy
 buildscript {
@@ -34,12 +33,11 @@ buildscript {
 // RELEASING
 // # 0:              update the libraryVersion
 // # 1:              open terminal and run the following commands
-// # 2 artifactory:  ./gradlew publishToArtifactory
 // # 2 bintray:      ./gradlew publishToBintray
 // # 3 bintray: make sure you add the published library to jcenter on the site
 
 ext.libraryGroupId = 'library-group-id' // the dependency will result in something like implementation "com.halcyonmobile.<libraryGroupId>:<libraryArtifactId>:<libraryVersion>"
-ext.libraryVersion = '0.1.0.1'
+ext.libraryVersion = '0.1.0.2'
 ext.bintray_source_url = "" // link to the sourcecode or left empty if it's not published to bintray
 ```
 
@@ -65,8 +63,6 @@ You can also get help with ./gradlew howToPublish
 - By default the "maven" repo is used, to change this define in your deploy.gradle ext.bintray_repo_name
 - By default Apache-2 license is used for bintray, if you wish to change, define in your deploy.gradle an ext.bintray_license
 
-### Artifactory
-- if you are not releasing to libs-release-local, you can change it by defining in your deploy.gradle an ext.artifactory_repo_key
 
 <h1 id="license">License :page_facing_up:</h1>
 

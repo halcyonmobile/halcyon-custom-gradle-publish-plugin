@@ -28,7 +28,7 @@ import java.util.concurrent.Executors
 /**
  * Defines a task which runs the following gradle commands in shell:
  * ./gradlew clean
- * ./gradlew assemble
+ * ./gradlew assembleRelease
  * ./gradlew generatePomFileForMavenJarPublication
  * ./gradlew generatePomFileForMavenAarPublication
  * ./gradlew [actualPublishTask]
@@ -42,7 +42,7 @@ abstract class ShellPublishTask : DefaultTask() {
         val executor = Executors.newSingleThreadExecutor()
         val logger = executor.createLogger()
         runGradleTaskFromShell("clean", logger).showErrorAndThrowExceptionIfFailed()
-        runGradleTaskFromShell("assemble", logger).showErrorAndThrowExceptionIfFailed()
+        runGradleTaskFromShell("assembleRelease", logger).showErrorAndThrowExceptionIfFailed()
         runGradleTaskFromShell("generatePomFileForMavenJarPublication", logger)
         runGradleTaskFromShell("generatePomFileForMavenAarPublication", logger)
         runGradleTaskFromShell(actualPublishTask, logger).showErrorAndThrowExceptionIfFailed()

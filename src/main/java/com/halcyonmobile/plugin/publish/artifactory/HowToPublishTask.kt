@@ -32,7 +32,7 @@ open class HowToPublishTask : DefaultTask() {
         println("Note: for step 3 you need both if both kind of libraries are published, one if only one type")
         println("0. open your terminal and run the following commands.")
         println("1.                ./gradlew clean")
-        println("2.                ./gradlew assemble")
+        println("2.                ./gradlew assembleRelease")
         println("3(java).          ./gradlew generatePomFileForMavenJarPublication")
         println("3(android).       ./gradlew generatePomFileForMavenAarPublication")
         println("4(artifactory).   ./gradlew artifactoryPublish")

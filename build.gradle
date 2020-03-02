@@ -3,13 +3,6 @@ buildscript {
     repositories {
         mavenLocal()
         jcenter()
-        maven {
-            url "http://artifactory.halcyonmobile.info:8081/artifactory/libs-release-local"
-            credentials {
-                username = "${artifactory_username}"
-                password = "${artifactory_password}"
-            }
-        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
