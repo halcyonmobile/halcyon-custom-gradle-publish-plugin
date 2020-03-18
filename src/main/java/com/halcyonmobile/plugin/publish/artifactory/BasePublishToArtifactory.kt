@@ -140,6 +140,7 @@ abstract class BasePublishToArtifactory : Plugin<Project> {
         bintrayExtension.pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
             repo = project.bintrayRepo
             name = "${project.nakedLibraryGroupId}:${project.libraryArtifactId}"
+            userOrg = "halcyonmobiledevteam"
             vcsUrl = project.bintrayVcsUrl
             setLicenses(project.bintrayLicense)
             version(delegateClosureOf<BintrayExtension.VersionConfig> {
