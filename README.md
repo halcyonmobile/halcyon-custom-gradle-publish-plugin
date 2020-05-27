@@ -7,7 +7,7 @@ and instead have one plugin which can be updated and fixes can be in place more 
 
 ## Setup
 
-*Latest version:*![Latest release](https://img.shields.io/github/v/release/halcyonmobile//halcyon-custom-gradle-publish-plugin)
+*Latest version:*![Latest release](https://img.shields.io/github/v/release/halcyonmobile/halcyon-custom-gradle-publish-plugin)
 
 ### Add plugin to your dependencies
 - add your bintray access to your global gradle.properties:
