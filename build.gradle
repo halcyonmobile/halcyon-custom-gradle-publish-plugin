@@ -18,14 +18,13 @@ apply plugin: "maven-publish"
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation "com.jfrog.artifactory:com.jfrog.artifactory.gradle.plugin:4.10.0"
+    implementation "com.jfrog.artifactory:com.jfrog.artifactory.gradle.plugin:4.15.2"
     implementation "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
     implementation "digital.wup:android-maven-publish:3.6.2"
     implementation "com.android.tools.build:gradle:3.5.0"
     implementation "org.jfrog.buildinfo:build-info-extractor-gradle:4.7.3"
 
-
-    compile gradleApi()
+    implementation gradleApi()
 }
 
 repositories {
