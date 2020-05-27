@@ -8,7 +8,7 @@ apply plugin: "com.jfrog.bintray"
 
 ext.pluginGroupdId = "com.halcyonmobile.publish.artifactory-bintray"
 ext.pluginArtifactId = "java-and-aar"
-ext.pluginVersion = "0.1.0.3"
+ext.pluginVersion = "0.1.0.4"
 
 
 def pomConfig = {

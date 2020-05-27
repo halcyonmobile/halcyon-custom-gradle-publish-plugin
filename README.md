@@ -7,7 +7,7 @@ and instead have one plugin which can be updated and fixes can be in place more 
 
 ## Setup
 
-latest version is 0.1.0.1
+latest version is 0.1.0.4
 
 ### Add plugin to your dependencies
 - add your bintray access to your global gradle.properties:
