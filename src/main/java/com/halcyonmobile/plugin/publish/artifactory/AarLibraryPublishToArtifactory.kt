@@ -45,7 +45,7 @@ class AarLibraryPublishToArtifactory : BasePublishToArtifactory() {
      */
     override fun Project.createSourcesJarTask(): Task {
         val sourcesJar = tasks.create("sourcesJar", Jar::class.java)
-        sourcesJar.classifier = "sources"
+        sourcesJar.archiveClassifier.set("sources")
         sourcesJar.from(extensions.getByType(LibraryExtension::class.java).sourceSets.findByName("main")!!.java.srcDirs)
 
         return sourcesJar

@@ -45,7 +45,7 @@ class JavaLibraryPublishToArtifactory : BasePublishToArtifactory() {
      */
     override fun Project.createSourcesJarTask(): Task {
         val sourcesJar = tasks.create("sourcesJar", Jar::class.java)
-        sourcesJar.classifier = "sources"
+        sourcesJar.archiveClassifier.set("sources")
         sourcesJar.from(convention.getPlugin(JavaPluginConvention::class.java).sourceSets.asMap["main"]!!.allSource)
 
         return sourcesJar.dependsOn("classes")
