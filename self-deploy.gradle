@@ -1,6 +1,6 @@
 project.ext.set("libraryGroupId", "publish.custom")
 project.ext.set("libraryArtifactId", "java-and-aar")
-project.ext.set("libraryVersion", "2.0.0")
+project.ext.set("libraryVersion", "2.0.1")
 project.ext.set("githubPackagePath","halcyonmobile/halcyon-custom-gradle-publish-plugin")
 
 apply plugin: "com.halcyonmobile.plugin.publish.custom.jar-library"
