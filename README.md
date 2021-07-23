@@ -9,38 +9,50 @@ and instead have one plugin which can be updated and fixes can be in place more 
 
 *Latest version:*![Latest release](https://img.shields.io/github/v/release/halcyonmobile/halcyon-custom-gradle-publish-plugin)
 
-### Add plugin to your dependencies
+### Set credentials
+
 - add your github access to your global .bash_profile:
 GITHUB_USERNAME, GITHUB_TOKEN
-- add your bintray access to your global .bash_profile:
-bintray_username, bintray_password
+```bash 
+file: $HOME/.bash_profile
+
+#..
+export GITHUB_USERNAME="yourUserName"
+export GITHUB_TOKEN="yourToken" # can be generated in GitHub / settings / developer settings / Personal Access Token / Generate new token. and check read packages
+# see: https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token
+#..
+```
+
+### Add plugin to your dependencies
+
 - in your top-level build.gradle add the following setup to access halcyon gradle plugins and add the publish plugin:
 ```groovy
 buildscript {
     /* ... */
     repositories {
         /* ... */
-        jcenter()
+        maven {
+            url "https://maven.pkg.github.com/halcyonmobile/halcyon-custom-gradle-publish-plugin"
+            credentials {
+                username = System.getenv("GITHUB_USERNAME")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
     }
     dependencies {
         /* ... */
-        classpath 'com.halcyonmobile.publish.artifactory-bintray:java-and-aar:<latest_version>'
+        classpath 'com.halcyonmobile.publish.custom:java-and-aar:<latest_version>'
     }
 }
 ```
 
 ### Configure the plugin
+
 - Create a new file deploy.gradle looking something like this:
 ```groovy
-// RELEASING
-// # 0:              update the libraryVersion
-// # 1:              open terminal and run the following commands
-// # 2 bintray:      ./gradlew publishToBintray
-// # 3 bintray: make sure you add the published library to jcenter on the site
-
-ext.libraryGroupId = 'library-group-id' // the dependency will result in something like implementation "com.halcyonmobile.<libraryGroupId>:<libraryArtifactId>:<libraryVersion>"
-ext.libraryVersion = '0.1.0.2'
-ext.bintray_source_url = "" // link to the sourcecode or left empty if it's not published to bintray
+project.ext.set("libraryGroupId","example-library-group-id") // the dependency will result in something like implementation "com.halcyonmobile.<example-library-group-id>:<example-library-artifact-id>:<0.1.0.2>"
+project.ext.set("libraryVersion","0.1.0.2")
+project.ext.set("githubPackagePath","halcyonmobile/halcyon-custom-gradle-publish-plugin") // this is the path of the github package, comes from "https://github.com/halcyonmobile/halcyon-custom-gradle-publish-plugin/"
 ```
 
 - Add the new file to your top-leve build.gradle at the end
@@ -51,20 +63,33 @@ apply from: "./deploy.gradle"
 
 - In your modules you want to publish add the following lines to the end of the build.gradle:
 ```groovy
-project.ext.set("libraryArtifactId", "library-artifact-id")
-apply plugin: 'com.halcyonmobile.plugin.publish.artifactory.jar-library' // or aar-library if it's an android module
+project.ext.set("libraryArtifactId", "example-library-artifact-id")
+apply plugin: 'com.halcyonmobile.plugin.publish.custom.jar-library' // or aar-library if it's an android module
 ```
 
+And that's it now you can publish via `./gradlew publishtoGitHub`
 
-And that's it now you can publish via ./gradlew publishToArtifactory or ./gradlew publishToBintray
+Artfactory and Bintray are deprecated, kept only for reference: `./gradlew publishToArtifactory`, `./gradlew publishToBintray,`
+
 You can also get help with ./gradlew howToPublish
 
-## Configuration
+## GitHub Actions Integration
 
-### Bintray configuration
-- By default the "maven" repo is used, to change this define in your deploy.gradle ext.bintray_repo_name
-- By default Apache-2 license is used for bintray, if you wish to change, define in your deploy.gradle an ext.bintray_license
+As mentioned above, you will need to add the credentials to the .bash_profile and in the top level gradle file.
 
+Additionally you can generate a workflow for GitHub which automatically publishes a package, when you create a new release on the GitHub website:
+
+1. Configure the project as for releasing to GitHub
+2. `./gradlew generatePublishScriptForGitHubActions`
+3. verify the file is generated under project/.github/workflows/release-package.yml and don't forget to add it to git.
+
+Now whenever you create a Release on GitHub website this action will create a new package.
+
+For help run `./gradlew howToIntegrateGitHubActions`
+
+## Example
+
+This project uses it's previous version to publish itself to GitHub Packages, so the project's build.gradle and self-deploy.gradle is in itself an example.
 
 <h1 id="license">License :page_facing_up:</h1>
 
