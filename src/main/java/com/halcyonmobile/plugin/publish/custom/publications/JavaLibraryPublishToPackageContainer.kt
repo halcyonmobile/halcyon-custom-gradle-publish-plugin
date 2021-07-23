@@ -15,40 +15,43 @@
  * limitations under the License.
  */
 
-package com.halcyonmobile.plugin.publish.artifactory
+package com.halcyonmobile.plugin.publish.custom.publications
 
-import com.android.build.gradle.LibraryExtension
-import digital.wup.android_maven_publish.AndroidMavenPublishPlugin
+import com.halcyonmobile.plugin.publish.custom.libraryArtifactId
+import com.halcyonmobile.plugin.publish.custom.libraryGroupId
+import com.halcyonmobile.plugin.publish.custom.libraryVersion
 import org.gradle.api.PolymorphicDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.plugins.JavaPluginConvention
 import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.jvm.tasks.Jar
 
-class AarLibraryPublishToArtifactory : BasePublishToArtifactory() {
+class JavaLibraryPublishToPackageContainer : BasePublishToPackageContainer() {
 
     override fun applyPlugins(project: Project) {
-        project.plugins.apply(AndroidMavenPublishPlugin::class.java)
+        project.plugins.apply(MavenPublishPlugin::class.java)
     }
 
     /**
      * Equivalent to
      *
      * ```
-     * task sourceJar(type: Jar) {
-     *    from android.sourceSets.main.java.srcDirs
-     *    classifier "sources"
+     * task sourcesJar(type: Jar, dependsOn: classes) {
+     *    classifier = 'sources'
+     *    from sourceSets.main.allSource
      * }
      * ```
      */
     override fun Project.createSourcesJarTask(): Task {
         val sourcesJar = tasks.create("sourcesJar", Jar::class.java)
         sourcesJar.archiveClassifier.set("sources")
-        sourcesJar.from(extensions.getByType(LibraryExtension::class.java).sourceSets.findByName("main")!!.java.srcDirs)
+        sourcesJar.from(convention.getPlugin(JavaPluginConvention::class.java).sourceSets.asMap["main"]!!.allSource)
 
-        return sourcesJar
+        return sourcesJar.dependsOn("classes")
     }
 
     /**
@@ -57,8 +60,8 @@ class AarLibraryPublishToArtifactory : BasePublishToArtifactory() {
      * ```
      * publishing {
      *     publications {
-     *         mavenAar(MavenPublication) {
-     *             from components.android
+     *         mavenJar(MavenPublication) {
+     *             from components.java
      *
      *             groupId libraryGroupId
      *             version libraryVersion
@@ -72,14 +75,13 @@ class AarLibraryPublishToArtifactory : BasePublishToArtifactory() {
      */
     override fun createMavenPublication(project: Project, sourcesJarTask: Task): Publication {
         val publishingExtension = project.extensions.findByName("publishing") as PublishingExtension
-        val mavenPublication = (publishingExtension.publications as PolymorphicDomainObjectContainer<Publication>).create("mavenAar", MavenPublication::class.java)
+        val mavenPublication = (publishingExtension.publications as PolymorphicDomainObjectContainer<Publication>).create("mavenJar", MavenPublication::class.java)
         mavenPublication.groupId = project.libraryGroupId
         mavenPublication.artifactId = project.libraryArtifactId
         mavenPublication.version = project.libraryVersion
         mavenPublication.artifact(sourcesJarTask)
-        mavenPublication.from(project.components.findByName("android"))
+        mavenPublication.from(project.components.findByName("java"))
 
         return mavenPublication
     }
-
 }

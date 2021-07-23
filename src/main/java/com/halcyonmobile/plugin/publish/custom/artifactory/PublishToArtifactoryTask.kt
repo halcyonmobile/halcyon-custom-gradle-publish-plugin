@@ -15,8 +15,21 @@
  * limitations under the License.
  */
 
-package com.halcyonmobile.plugin.publish.artifactory
+package com.halcyonmobile.plugin.publish.custom.artifactory
+
+import com.halcyonmobile.plugin.publish.custom.ShellPublishTask
 
 open class PublishToArtifactoryTask : ShellPublishTask() {
     override val actualPublishTask: String get() = "artifactoryPublish"
+
+    override fun verifyConfiguration(): Boolean {
+        if (!hasArtifactoryAccess) {
+            System.err.println("Project doesn't have artifactory access, please provide the following configurations:")
+            System.err.println("required configurations username: $ARTIFACTORY_USERNAME_KEY")
+            System.err.println("required configurations password: $ARTIFACTORY_PASSWORD_KEY")
+            System.err.println("configuration need to be set in the \$HOME/.bash_profile \"export KEY=value\" format")
+            return false
+        }
+        return true
+    }
 }

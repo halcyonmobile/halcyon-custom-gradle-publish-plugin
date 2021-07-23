@@ -1,4 +1,4 @@
-# A gradle plugin to simpify publication to artifactory and bintray
+# A gradle plugin to simplify publication to artifactory, bintray, github
 
 ## Purpose
 
@@ -10,7 +10,9 @@ and instead have one plugin which can be updated and fixes can be in place more 
 *Latest version:*![Latest release](https://img.shields.io/github/v/release/halcyonmobile/halcyon-custom-gradle-publish-plugin)
 
 ### Add plugin to your dependencies
-- add your bintray access to your global gradle.properties:
+- add your github access to your global .bash_profile:
+GITHUB_USERNAME, GITHUB_TOKEN
+- add your bintray access to your global .bash_profile:
 bintray_username, bintray_password
 - in your top-level build.gradle add the following setup to access halcyon gradle plugins and add the publish plugin:
 ```groovy
