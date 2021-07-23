@@ -1,14 +1,14 @@
 // deploy:
 // ./gradlew clean
 // ./gradlew assemble
-// ./gradlew bintrayUpload
+// ./gradlew publishToGithub
 
 apply plugin: "maven-publish"
 apply plugin: "com.jfrog.bintray"
 
-ext.pluginGroupdId = "com.halcyonmobile.publish.artifactory-bintray"
+ext.pluginGroupdId = "com.halcyonmobile.publish.custom"
 ext.pluginArtifactId = "java-and-aar"
-ext.pluginVersion = "0.1.0.7"
+ext.pluginVersion = "2.0.0"
 
 
 def pomConfig = {
@@ -26,6 +26,10 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
+task publishToGitHub(dependsOn: "publishMavenJavaPublicationToGitHubPackagesRepository") {
+    group = "Publishing"
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -37,11 +41,22 @@ publishing {
             artifact sourcesJar
         }
     }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://github.com/halcyonmobile/halcyon-custom-gradle-publish-plugin")
+            credentials {
+                username = System.getenv("GITHUB_USERNAME")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
 
 bintray {
-    user = bintray_username
-    key = bintray_password
+    user = System.getenv("bintray_username")
+    key = System.getenv("bintray_password")
     publications = ['mavenJava']
     publish = true
     override = true

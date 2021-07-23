@@ -15,40 +15,76 @@
  * limitations under the License.
  */
 
-package com.halcyonmobile.plugin.publish.artifactory
+package com.halcyonmobile.plugin.publish.custom.publications
 
+import com.halcyonmobile.plugin.publish.custom.howtotask.HowToIntegrateGitHubActionsTask
+import com.halcyonmobile.plugin.publish.custom.howtotask.HowToPublishTask
+import com.halcyonmobile.plugin.publish.custom.artifactory.ARTIFACTORY_URL
+import com.halcyonmobile.plugin.publish.custom.artifactory.PublishToArtifactoryTask
+import com.halcyonmobile.plugin.publish.custom.artifactory.artifactoryPassword
+import com.halcyonmobile.plugin.publish.custom.artifactory.artifactoryUserName
+import com.halcyonmobile.plugin.publish.custom.artifactory.hasArtifactoryAccess
+import com.halcyonmobile.plugin.publish.custom.artifactory.repoKey
+import com.halcyonmobile.plugin.publish.custom.bintray.PublishToBintrayTask
+import com.halcyonmobile.plugin.publish.custom.bintray.bintrayLicense
+import com.halcyonmobile.plugin.publish.custom.bintray.bintrayPassword
+import com.halcyonmobile.plugin.publish.custom.bintray.bintrayRepo
+import com.halcyonmobile.plugin.publish.custom.bintray.bintrayUserName
+import com.halcyonmobile.plugin.publish.custom.bintray.bintrayVcsUrl
+import com.halcyonmobile.plugin.publish.custom.bintray.hasBintrayAccess
+import com.halcyonmobile.plugin.publish.custom.github.GeneratePublishScriptForGitHubActionsTask
+import com.halcyonmobile.plugin.publish.custom.github.PublishToGithubTask
+import com.halcyonmobile.plugin.publish.custom.github.githubPackageUrl
+import com.halcyonmobile.plugin.publish.custom.github.githubPassword
+import com.halcyonmobile.plugin.publish.custom.github.githubUserName
+import com.halcyonmobile.plugin.publish.custom.github.hasGitHubAccess
+import com.halcyonmobile.plugin.publish.custom.libraryArtifactId
+import com.halcyonmobile.plugin.publish.custom.libraryVersion
+import com.halcyonmobile.plugin.publish.custom.nakedLibraryGroupId
 import com.jfrog.bintray.gradle.BintrayExtension
 import com.jfrog.bintray.gradle.BintrayPlugin
 import groovy.lang.Closure
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.Publication
+import org.gradle.api.publish.PublishingExtension
 import org.jfrog.gradle.plugin.artifactory.ArtifactoryPlugin
 import org.jfrog.gradle.plugin.artifactory.dsl.ArtifactoryPluginConvention
 import org.jfrog.gradle.plugin.artifactory.dsl.DoubleDelegateWrapper
 import org.jfrog.gradle.plugin.artifactory.dsl.PublisherConfig
 import org.jfrog.gradle.plugin.artifactory.task.ArtifactoryTask
 
-abstract class BasePublishToArtifactory : Plugin<Project> {
+abstract class BasePublishToPackageContainer : Plugin<Project> {
 
     override fun apply(project: Project) {
-        project.plugins.apply(ArtifactoryPlugin::class.java)
-        if (!project.hasBintrayAccess) {
-            System.err.println("If you wish to publish bintray, set up your access, similar to artifactory: set the username and password in your gradle.properties with $BINTRAY_USERNAME_KEY & $BINTRAY_PASSWORD_KEY keys.\nTo get these login to halcyon github, then to bintray with that github and in settings you can find the needed username and password. github access is listen on the wiki.")
-        } else {
+        if (hasArtifactoryAccess) {
+            project.plugins.apply(ArtifactoryPlugin::class.java)
+        }
+        if (hasBintrayAccess) {
             project.plugins.apply(BintrayPlugin::class.java)
         }
+
         applyPlugins(project)
 
         project.rootProject.createHowToTask()
+        project.rootProject.createHowToIntegrateGitHubActionsTask()
+        project.rootProject.createGeneratePublishScriptForGitHubActionsTask()
         project.rootProject.createPublishToArtifactoryTask()
         project.rootProject.createPublishToBintrayTask()
+        project.rootProject.createPublishToGithubTask()
         val sourcesJarTask = project.createSourcesJarTask()
         val mavenPublication = createMavenPublication(project, sourcesJarTask)
-        configureArtifactory(project, mavenPublication)
-        if (project.hasBintrayAccess) {
+        if (hasArtifactoryAccess) {
+            configureArtifactory(project, mavenPublication)
+        }
+        if (hasBintrayAccess) {
             configureBintray(project, mavenPublication)
+        }
+        if (hasGitHubAccess) {
+            configureGitHub(project)
         }
     }
 
@@ -61,12 +97,24 @@ abstract class BasePublishToArtifactory : Plugin<Project> {
         tasks.maybeCreate("howToPublish", HowToPublishTask::class.java)
     }
 
-    private fun Project.createPublishToArtifactoryTask(){
+    private fun Project.createHowToIntegrateGitHubActionsTask() {
+        tasks.maybeCreate("howToIntegrateGitHubActions", HowToIntegrateGitHubActionsTask::class.java)
+    }
+
+    private fun Project.createGeneratePublishScriptForGitHubActionsTask() {
+        tasks.maybeCreate("generatePublishScriptForGitHubActions", GeneratePublishScriptForGitHubActionsTask::class.java)
+    }
+
+    private fun Project.createPublishToArtifactoryTask() {
         tasks.maybeCreate("publishToArtifactory", PublishToArtifactoryTask::class.java)
     }
 
-    private fun Project.createPublishToBintrayTask(){
+    private fun Project.createPublishToBintrayTask() {
         tasks.maybeCreate("publishToBintray", PublishToBintrayTask::class.java)
+    }
+
+    private fun Project.createPublishToGithubTask() {
+        tasks.maybeCreate("publishToGitHub", PublishToGithubTask::class.java)
     }
 
     protected abstract fun createMavenPublication(project: Project, sourcesJarTask: Task): Publication
@@ -100,8 +148,8 @@ abstract class BasePublishToArtifactory : Plugin<Project> {
                 setContextUrl(ARTIFACTORY_URL)
                 repository(delegateClosureOf<DoubleDelegateWrapper> {
                     publisherConfig.propertyMissing("repoKey", project.repoKey)
-                    publisherConfig.propertyMissing("username", project.artifactoryUserName)
-                    publisherConfig.propertyMissing("password", project.artifactoryPassword)
+                    publisherConfig.propertyMissing("username", artifactoryUserName)
+                    publisherConfig.propertyMissing("password", artifactoryPassword)
                     publisherConfig.propertyMissing("maven", true)
                 })
                 defaults(delegateClosureOf<ArtifactoryTask> {
@@ -129,11 +177,12 @@ abstract class BasePublishToArtifactory : Plugin<Project> {
      *           }
      *      }
      * }
+     * ```
      */
     private fun configureBintray(project: Project, publication: Publication) {
         val bintrayExtension = project.extensions.findByType(BintrayExtension::class.java) as BintrayExtension
-        bintrayExtension.user = project.bintrayUserName
-        bintrayExtension.key = project.bintrayPassword
+        bintrayExtension.user = bintrayUserName
+        bintrayExtension.key = bintrayPassword
         bintrayExtension.setPublications(publication.name)
         bintrayExtension.publish = true
         bintrayExtension.override = true
@@ -150,11 +199,43 @@ abstract class BasePublishToArtifactory : Plugin<Project> {
     }
 
     /**
+     * ```
+     * publishing {
+     *      repositories {
+     *           maven {
+     *                name = "GitHubPackages"
+     *                url = uri("https://maven.pkg.github.com/${System.env("github_package_path"}")
+     *                credentials {
+     *                     username = System.getenv("GITHUB_USERNAME")
+     *                     password = System.getenv("GITHUB_TOKEN")
+     *                }
+     *           }
+     *      }
+     * }
+     * ```
+     */
+    private fun configureGitHub(project: Project) {
+        val publishingExtension = project.extensions.findByName("publishing") as PublishingExtension
+        publishingExtension.repositories { repositories ->
+            repositories.maven(delegateClosureOf<MavenArtifactRepository> {
+                name = "GitHubPackages"
+                url = project.uri(project.githubPackageUrl)
+                credentials { credentials ->
+                    credentials.username = githubUserName
+                    credentials.password = githubPassword
+                }
+            })
+        }
+    }
+
+    /**
      * Creates a Groovy closure.
      */
-    fun <T> Any.delegateClosureOf(action: T.() -> Unit) =
-            object : Closure<Unit>(this, this) {
-                @Suppress("unused", "UNCHECKED_CAST") // to be called dynamically by Groovy
-                fun doCall() = (delegate as T).action()
-            }
+    private fun <T> Any.delegateClosureOf(action: T.() -> Unit) =
+        object : Closure<Unit>(this, this) {
+            @Suppress("unused", "UNCHECKED_CAST") // to be called dynamically by Groovy
+            fun doCall() = (delegate as T).action()
+        }
+
+    private fun <T> delegateActionOf(action: T.() -> Unit) = Action<T> { arg -> action.invoke(arg as T) }
 }

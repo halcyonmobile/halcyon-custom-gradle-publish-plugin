@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package com.halcyonmobile.plugin.publish.artifactory
+package com.halcyonmobile.plugin.publish.custom
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
@@ -41,14 +41,23 @@ abstract class ShellPublishTask : DefaultTask() {
     fun howToPublish() {
         val executor = Executors.newSingleThreadExecutor()
         val logger = executor.createLogger()
+        if (!verifyConfiguration()) {
+            throw IllegalArgumentException("Publishing not configured properly, check the logs above")
+        }
         runGradleTaskFromShell("clean", logger).showErrorAndThrowExceptionIfFailed()
-        runGradleTaskFromShell("assembleRelease", logger).showErrorAndThrowExceptionIfFailed()
+        runGradleTaskFromShell("assembleRelease", logger)
+            .runThisIfFailed { runGradleTaskFromShell("assemble", logger) }
+            .showErrorAndThrowExceptionIfFailed()
         runGradleTaskFromShell("generatePomFileForMavenJarPublication", logger)
         runGradleTaskFromShell("generatePomFileForMavenAarPublication", logger)
+        runActualTask(logger)
+    }
+
+    open fun runActualTask(logger: (inputStream: InputStream, isError: Boolean) -> Unit) {
         runGradleTaskFromShell(actualPublishTask, logger).showErrorAndThrowExceptionIfFailed()
     }
 
-    private fun runGradleTaskFromShell(task: String, logger: (inputStream: InputStream, isError: Boolean) -> Unit): Int {
+    protected fun runGradleTaskFromShell(task: String, logger: (inputStream: InputStream, isError: Boolean) -> Unit): Int {
         println("running gradle task: ./gradlew $task")
         val process = Runtime.getRuntime().exec("./gradlew $task")
         logger(process.inputStream, false)
@@ -60,7 +69,7 @@ abstract class ShellPublishTask : DefaultTask() {
      * Creates a logger which can be used in [runGradleTaskFromShell]
      */
     private fun ExecutorService.createLogger() = { inputStream: InputStream, isError: Boolean ->
-        val logDestination : (String) -> Unit = if (isError) System.err::println else ::println
+        val logDestination: (String) -> Unit = if (isError) { it: String -> System.err.println(it) } else { it: String -> println(it) }
         submit(StreamGobbler(inputStream, logDestination))
         Unit
     }
@@ -68,11 +77,21 @@ abstract class ShellPublishTask : DefaultTask() {
     /**
      * Shows an error message and throws exception if the errorCode is not 0.
      */
-    private fun Int.showErrorAndThrowExceptionIfFailed() {
+    protected fun Int.showErrorAndThrowExceptionIfFailed() {
         if (this == 0) return
         System.err.println("Something went wrong, please check the logs above!")
         throw RuntimeException("Something went wrong, please check the logs above!")
     }
+
+    /**
+     * Shows an error message and throws exception if the errorCode is not 0.
+     */
+    protected fun Int.runThisIfFailed(fallback: () -> Int): Int {
+        if (this == 0) return 0
+        return fallback()
+    }
+
+    abstract fun verifyConfiguration(): Boolean
 
     /**
      * Helper class to write to the given [inputStream]
