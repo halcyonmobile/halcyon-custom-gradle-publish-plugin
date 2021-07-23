@@ -7,7 +7,6 @@ on:
 
 jobs:
   publish-library:
-    needs: build
     runs-on: ubuntu-latest
     permissions:
       packages: write
