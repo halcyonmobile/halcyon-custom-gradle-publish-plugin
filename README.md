@@ -11,7 +11,7 @@ and instead have one plugin which can be updated and fixes can be in place more 
 
 ### Set credentials
 
-- add your github access to your global .bash_profile:
+- add your github access to your global .bash_profile or gradle properties
 GITHUB_USERNAME, GITHUB_TOKEN
 ```bash 
 file: $HOME/.bash_profile
@@ -35,9 +35,10 @@ buildscript {
         maven {
             url "https://maven.pkg.github.com/halcyonmobile/halcyon-custom-gradle-publish-plugin"
             credentials {
-                username = System.getenv("GITHUB_USERNAME")
-                password = System.getenv("GITHUB_TOKEN")
+                username = project.findProperty("GITHUB_USERNAME") ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("GITHUB_TOKEN") ?: System.getenv("GITHUB_TOKEN")
             }
+            // https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token
         }
     }
     dependencies {
