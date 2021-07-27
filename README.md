@@ -31,7 +31,8 @@ buildscript {
     /* ... */
     repositories {
         /* ... */
-        maven {url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
         maven {
             url "https://maven.pkg.github.com/halcyonmobile/halcyon-custom-gradle-publish-plugin"
             credentials {
