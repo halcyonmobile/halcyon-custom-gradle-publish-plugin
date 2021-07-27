@@ -21,8 +21,8 @@ open class PublishToGithubTask : ShellPublishTask() {
     }
 
     override fun runActualTask(logger: (inputStream: InputStream, isError: Boolean) -> Unit) {
-        runGradleTaskFromShell(actualPublishTask, logger)
-            .runThisIfFailed { runGradleTaskFromShell(actualAarPublishTask, logger) }
-            .showErrorAndThrowExceptionIfFailed()
+        val jarResult = runGradleTaskFromShell(actualPublishTask, logger)
+        val aarResult = runGradleTaskFromShell(actualAarPublishTask, logger)
+        jarResult.runThisIfFailed { aarResult }.showErrorAndThrowExceptionIfFailed()
     }
 }

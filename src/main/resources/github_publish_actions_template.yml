@@ -23,4 +23,4 @@ jobs:
         env:
           {username_to_replace}: "halcyonmobile"
           {password_to_replace}: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew publish
+        run: ./gradlew publishToGitHub

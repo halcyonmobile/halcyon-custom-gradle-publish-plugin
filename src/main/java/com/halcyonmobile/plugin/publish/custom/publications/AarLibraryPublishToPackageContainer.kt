@@ -61,7 +61,7 @@ class AarLibraryPublishToPackageContainer : BasePublishToPackageContainer() {
      * publishing {
      *     publications {
      *         mavenAar(MavenPublication) {
-     *             from components.android
+     *             from components.androidRelease
      *
      *             groupId libraryGroupId
      *             version libraryVersion
@@ -80,7 +80,7 @@ class AarLibraryPublishToPackageContainer : BasePublishToPackageContainer() {
         mavenPublication.artifactId = project.libraryArtifactId
         mavenPublication.version = project.libraryVersion
         mavenPublication.artifact(sourcesJarTask)
-        mavenPublication.from(project.components.findByName("android"))
+        mavenPublication.from(project.components.findByName("androidRelease"))
 
         return mavenPublication
     }
