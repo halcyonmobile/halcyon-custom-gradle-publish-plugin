@@ -16,7 +16,7 @@ buildscript {
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.24.14"
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5"
         classpath "com.halcyonmobile.publish.custom:java-and-aar:2.0.1"
     }
 }
