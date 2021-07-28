@@ -21,19 +21,19 @@ import com.android.build.gradle.LibraryExtension
 import com.halcyonmobile.plugin.publish.custom.libraryArtifactId
 import com.halcyonmobile.plugin.publish.custom.libraryGroupId
 import com.halcyonmobile.plugin.publish.custom.libraryVersion
-import digital.wup.android_maven_publish.AndroidMavenPublishPlugin
 import org.gradle.api.PolymorphicDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.jvm.tasks.Jar
 
 class AarLibraryPublishToPackageContainer : BasePublishToPackageContainer() {
 
     override fun applyPlugins(project: Project) {
-        project.plugins.apply(AndroidMavenPublishPlugin::class.java)
+        project.plugins.apply(MavenPublishPlugin::class.java)
     }
 
     /**
@@ -58,18 +58,20 @@ class AarLibraryPublishToPackageContainer : BasePublishToPackageContainer() {
      * Equivalent to
      *
      * ```
-     * publishing {
-     *     publications {
-     *         mavenAar(MavenPublication) {
-     *             from components.androidRelease
+     * afterEvaluate {
+     *    publishing {
+     *       publications {
+     *          mavenAar(MavenPublication) {
+     *             from components.release
      *
      *             groupId libraryGroupId
      *             version libraryVersion
      *             artifactId libraryArtifactId
      *
      *             artifact sourceJar
-     *         }
-     *     }
+     *          }
+     *       }
+     *    }
      * }
      * ```
      */
@@ -80,7 +82,10 @@ class AarLibraryPublishToPackageContainer : BasePublishToPackageContainer() {
         mavenPublication.artifactId = project.libraryArtifactId
         mavenPublication.version = project.libraryVersion
         mavenPublication.artifact(sourcesJarTask)
-        mavenPublication.from(project.components.findByName("androidRelease"))
+
+        project.afterEvaluate {
+            mavenPublication.from(project.components.findByName("release"))
+        }
 
         return mavenPublication
     }

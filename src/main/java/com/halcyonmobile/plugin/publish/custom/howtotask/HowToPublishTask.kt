@@ -39,6 +39,7 @@ open class HowToPublishTask : DefaultTask() {
         println("3(android).       ./gradlew generatePomFileForMavenAarPublication")
         println("4(artifactory).   ./gradlew artifactoryPublish")
         println("4(bintrayUpload). ./gradlew bintrayUpload")
-        println("5(github).        ./gradlew publishMavenJavaPublicationToGitHubPackagesRepository")
+        println("5(github).        ./gradlew publishMavenJarPublicationToGitHubPackagesRepository")
+        println("5(github).        ./gradlew publishMavenAarPublicationToGitHubPackagesRepository")
     }
 }

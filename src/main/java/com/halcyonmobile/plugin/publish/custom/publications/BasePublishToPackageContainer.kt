@@ -231,11 +231,11 @@ abstract class BasePublishToPackageContainer : Plugin<Project> {
     /**
      * Creates a Groovy closure.
      */
-    private fun <T> Any.delegateClosureOf(action: T.() -> Unit) =
+    fun <T> Any.delegateClosureOf(action: T.() -> Unit) =
         object : Closure<Unit>(this, this) {
             @Suppress("unused", "UNCHECKED_CAST") // to be called dynamically by Groovy
             fun doCall() = (delegate as T).action()
         }
 
-    private fun <T> delegateActionOf(action: T.() -> Unit) = Action<T> { arg -> action.invoke(arg as T) }
+    fun <T> delegateActionOf(action: T.() -> Unit) = Action<T> { arg -> action.invoke(arg as T) }
 }
