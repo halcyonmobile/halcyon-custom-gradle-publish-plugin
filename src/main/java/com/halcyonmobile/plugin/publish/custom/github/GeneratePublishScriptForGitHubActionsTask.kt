@@ -1,6 +1,5 @@
 package com.halcyonmobile.plugin.publish.custom.github
 
-import com.google.common.io.Files
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import java.io.BufferedReader
