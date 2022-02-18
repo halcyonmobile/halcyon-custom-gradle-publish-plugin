@@ -18,6 +18,7 @@
 package com.halcyonmobile.plugin.publish.custom
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import java.io.BufferedReader
 import java.io.InputStream
@@ -35,6 +36,7 @@ import java.util.concurrent.Executors
  */
 abstract class ShellPublishTask : DefaultTask() {
 
+    @get:Internal
     abstract val actualPublishTask: String
 
     @TaskAction
