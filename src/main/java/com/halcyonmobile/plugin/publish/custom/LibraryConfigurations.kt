@@ -44,6 +44,30 @@ val Project.libraryVersion
         return property(LIBRARY_VERSION) as? String? ?: throw IllegalStateException()
     }
 
+val Project.libraryLicenseName
+    get(): String {
+        return if (!project.hasProperty(LIBRARY_LICENSE_NAME)) {
+            println("$LIBRARY_LICENSE_NAME is not defined. Using default: $DEFAULT_LIBRARY_LICENSE_NAME")
+            DEFAULT_LIBRARY_LICENSE_NAME
+        } else {
+            property(LIBRARY_LICENSE_NAME) as? String? ?: throw IllegalStateException("${property(LIBRARY_LICENSE_NAME)} cant be accessed")
+        }
+    }
+
+val Project.libraryLicenseUrl
+    get(): String {
+        return if (!project.hasProperty(LIBRARY_LICENSE_URL)) {
+            println("$LIBRARY_LICENSE_URL is not defined. Using default: $DEFAULT_LIBRARY_LICENSE_URL")
+            DEFAULT_LIBRARY_LICENSE_URL
+        } else {
+            property(LIBRARY_LICENSE_URL) as? String? ?: throw IllegalStateException("${property(LIBRARY_LICENSE_NAME)} cant be accessed")
+        }
+    }
+
 private const val LIBRARY_GROUP_ID_KEY = "libraryGroupId"
 private const val LIBRARY_VERSION = "libraryVersion"
 private const val LIBRARY_ARTIFACT_ID_KEY = "libraryArtifactId"
+private const val LIBRARY_LICENSE_NAME = "libraryLicenseName"
+private const val DEFAULT_LIBRARY_LICENSE_NAME = "The Apache License, Version 2.0"
+private const val LIBRARY_LICENSE_URL = "libraryLicenseUrl"
+private const val DEFAULT_LIBRARY_LICENSE_URL = "http://www.apache.org/licenses/LICENSE-2.0.txt"
