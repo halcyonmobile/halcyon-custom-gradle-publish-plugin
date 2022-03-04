@@ -81,6 +81,7 @@ class JavaLibraryPublishToPackageContainer : BasePublishToPackageContainer() {
         mavenPublication.version = project.libraryVersion
         mavenPublication.artifact(sourcesJarTask)
         mavenPublication.from(project.components.findByName("java"))
+        addLicenseToPomFile(project, mavenPublication)
 
         return mavenPublication
     }

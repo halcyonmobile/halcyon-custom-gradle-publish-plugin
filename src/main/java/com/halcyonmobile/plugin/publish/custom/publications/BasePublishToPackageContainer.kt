@@ -17,8 +17,6 @@
 
 package com.halcyonmobile.plugin.publish.custom.publications
 
-import com.halcyonmobile.plugin.publish.custom.howtotask.HowToIntegrateGitHubActionsTask
-import com.halcyonmobile.plugin.publish.custom.howtotask.HowToPublishTask
 import com.halcyonmobile.plugin.publish.custom.artifactory.ARTIFACTORY_URL
 import com.halcyonmobile.plugin.publish.custom.artifactory.PublishToArtifactoryTask
 import com.halcyonmobile.plugin.publish.custom.artifactory.artifactoryPassword
@@ -38,7 +36,11 @@ import com.halcyonmobile.plugin.publish.custom.github.githubPackageUrl
 import com.halcyonmobile.plugin.publish.custom.github.githubPassword
 import com.halcyonmobile.plugin.publish.custom.github.githubUserName
 import com.halcyonmobile.plugin.publish.custom.github.hasGitHubAccess
+import com.halcyonmobile.plugin.publish.custom.howtotask.HowToIntegrateGitHubActionsTask
+import com.halcyonmobile.plugin.publish.custom.howtotask.HowToPublishTask
 import com.halcyonmobile.plugin.publish.custom.libraryArtifactId
+import com.halcyonmobile.plugin.publish.custom.libraryLicenseName
+import com.halcyonmobile.plugin.publish.custom.libraryLicenseUrl
 import com.halcyonmobile.plugin.publish.custom.libraryVersion
 import com.halcyonmobile.plugin.publish.custom.nakedLibraryGroupId
 import com.jfrog.bintray.gradle.BintrayExtension
@@ -51,6 +53,7 @@ import org.gradle.api.Task
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.Publication
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.jfrog.gradle.plugin.artifactory.ArtifactoryPlugin
 import org.jfrog.gradle.plugin.artifactory.dsl.ArtifactoryPluginConvention
 import org.jfrog.gradle.plugin.artifactory.dsl.DoubleDelegateWrapper
@@ -118,6 +121,31 @@ abstract class BasePublishToPackageContainer : Plugin<Project> {
     }
 
     protected abstract fun createMavenPublication(project: Project, sourcesJarTask: Task): Publication
+
+    /**
+     * ```
+     * publications {
+     *     mavenFoo(Bar) {
+     *         pom {
+     *             licenses {
+     *                 license {
+     *                     name = project.libraryLicenseName
+     *                     url = project.libraryLicenseUrl
+     *                 }
+     *             }
+     *         }
+     *     }
+     * }
+     * ```
+     */
+    protected fun addLicenseToPomFile(project: Project, mavenPublication: MavenPublication) {
+        mavenPublication.pom.licenses { pomSpec ->
+            pomSpec.license { pomLicenseSpec ->
+                pomLicenseSpec.name.set(project.libraryLicenseName)
+                pomLicenseSpec.url.set(project.libraryLicenseUrl)
+            }
+        }
+    }
 
     /**
      * ```

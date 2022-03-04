@@ -82,6 +82,7 @@ class AarLibraryPublishToPackageContainer : BasePublishToPackageContainer() {
         mavenPublication.artifactId = project.libraryArtifactId
         mavenPublication.version = project.libraryVersion
         mavenPublication.artifact(sourcesJarTask)
+        addLicenseToPomFile(project, mavenPublication)
 
         project.afterEvaluate {
             mavenPublication.from(project.components.findByName("release"))
